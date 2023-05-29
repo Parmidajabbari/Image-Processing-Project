@@ -1,14 +1,20 @@
 package com.example.handwrite
 
 import android.os.Bundle
+import android.os.Environment
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -30,7 +36,6 @@ class MainActivity : ComponentActivity() {
 @Preview(showBackground = true)
 @Composable
 fun FirstPage() {
-    val filePath = "p1.csv"
     Column(
         modifier = Modifier
 //            .fillMaxSize()
@@ -38,17 +43,17 @@ fun FirstPage() {
     ) {
         TopMessage(message = "Please fill the following form.")
         FieldMessage(message = "Write your first name.")
-        MyScreen(filePath, "fname")
+        MyScreen("fname")
         FieldMessage(message = "Write your last name.")
-        MyScreen(filePath, "lname")
+        MyScreen("lname")
         FieldMessage(message = "Write your age.")
-        MyScreen(filePath, "age")
+        MyScreen("age")
         FieldMessage(message = "Write 'Apple'.")
-        MyScreen(filePath, "apple")
+        MyScreen("apple")
         FieldMessage(message = "Write 'Mother'.")
-        MyScreen(filePath, "mother")
+        MyScreen("mother")
         FieldMessage(message = "Write 'Sky'.")
-        MyScreen(filePath, "sky")
+        MyScreen("sky")
         Spacer(modifier = Modifier.padding(vertical = 10.dp))
     }
 }
@@ -81,7 +86,7 @@ fun FieldMessage(message: String) {
 }
 
 @Composable
-fun MyScreen(filePath: String, rowName: String) {
+fun MyScreen(rowName: String) {
     var pathPoints by remember { mutableStateOf(emptyList<Pair<Float, Float>>()) }
 
     HandwritingInput(onSave = { newPoints ->
@@ -89,27 +94,22 @@ fun MyScreen(filePath: String, rowName: String) {
     })
 
     Button(onClick = {
-        val csvHeader = "X,Y"
+        val csvHeader = "X,Y,field"
         val csvData = pathPoints.joinToString("\n") { "${it.first},${it.second},${rowName}" }
         val csvContent = "$csvHeader\n$csvData"
-
-        val csvFile = File("path_points.csv")
-
-        try {
-            // Create the file if it doesn't exist
-            if (!csvFile.exists()) {
-                csvFile.createNewFile()
+            try {
+                val externalStorageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                // Create a new file in the external storage directory
+                val csvFile = File(externalStorageDir, "/path_points.csv")
+//              Write the CSV content to the file
+                FileWriter(csvFile).use { writer ->
+                    writer.append(csvContent)
+                }
+                println("Data saved to ${csvFile.absolutePath}")
+            } catch (e: IOException) {
+                e.printStackTrace()
             }
-
-            // Write the CSV content to the file
-            FileWriter(csvFile).use { writer ->
-                writer.append(csvContent)
-            }
-
-            println("Data saved to ${csvFile.absolutePath}")
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
+//        }
     }) {
         Text("Save")
     }
