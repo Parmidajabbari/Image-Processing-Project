@@ -2,8 +2,12 @@ package com.example.handwrite
 
 import android.os.Bundle
 import android.os.Environment
+import android.view.TextureView
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.camera.core.ImageCapture
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.video.VideoCapture
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,12 +28,46 @@ import java.io.File
 import java.io.FileWriter
 import java.io.IOException
 import java.text.DateFormat
-import java.text.SimpleDateFormat
 import java.util.Date
 
 class MainActivity : ComponentActivity() {
+    private lateinit var viewFinder: TextureView
+    private lateinit var cameraProvider: ProcessCameraProvider
+    //private lateinit var videoCapture:VideoCapture.OutputFileOptions.Builder(file).build()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+//        setContentView(R.layout.activity_main)
+
+//        viewFinder = findViewById(R.id.viewFinder)
+
+//        val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
+//
+//        cameraProviderFuture.addListener({
+//            cameraProvider = cameraProviderFuture.get()
+//
+//            val preview = Preview.Builder()
+//                .build()
+//                .also {
+//                    it.setSurfaceProvider(viewFinder.surfaceProvider)
+//                }
+//
+//            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+//
+//            videoCapture = VideoCapture.Builder()
+//                .build()
+//
+//            try {
+//                cameraProvider.unbindAll()
+//
+//                cameraProvider.bindToLifecycle(
+//                    this, cameraSelector, preview, videoCapture)
+//
+//            } catch (exc: Exception) {
+//                Log.e(TAG, "Use case binding failed", exc)
+//            }
+//
+//        }, ContextCompat.getMainExecutor(this))
         setContent {
             FirstPage()
         }
@@ -44,6 +82,24 @@ fun FirstPage() {
 //            .fillMaxSize()
 //            .verticalScroll(rememberScrollState())
     ) {
+        Button(onClick = {
+//            videoCapture.startRecording(
+//            outputFileOptions,
+//            ContextCompat.getMainExecutor(this),
+//            object : VideoCapture.OnVideoSavedCallback {
+//                override fun onVideoSaved(outputFileResults: VideoCapture.OutputFileResults) {
+//                    // Handle successful video capture
+//                }
+//                override fun onError(videoCaptureError: Int, message: String, cause: Throwable?) {
+//                    // Handle video capture error
+//                }
+//            })
+        }) {
+            Text(text = "Record")
+        }
+        Button(onClick = { /*TODO*/ }) {
+            Text(text = "Stop")
+        }
         TopMessage(message = "Please fill the following form.")
         FieldMessage(message = "Write your first name.")
         MyScreen("fname")
@@ -97,7 +153,7 @@ fun MyScreen(rowName: String) {
     })
 
     Button(onClick = {
-        val csvHeader = "X,Y,field, date"
+        val csvHeader = "X, Y, field, date"
         val dateTime = Date()
         val dateFormat = DateFormat.getDateTimeInstance()
         val formattedDateTime = dateFormat.format(dateTime)
