@@ -97,7 +97,7 @@ fun MyScreen(rowName: String) {
         val csvHeader = "X,Y,field"
         val csvData = pathPoints.joinToString("\n") { "${it.first},${it.second},${rowName}" }
         val csvContent = "$csvHeader\n$csvData"
-            try {
+        try {
                 val externalStorageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
                 // Create a new file in the external storage directory
                 val csvFile = File(externalStorageDir, "/path_points.csv")
