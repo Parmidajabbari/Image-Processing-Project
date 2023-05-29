@@ -23,6 +23,9 @@ import androidx.compose.ui.unit.sp
 import java.io.File
 import java.io.FileWriter
 import java.io.IOException
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+import java.util.Date
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -94,8 +97,11 @@ fun MyScreen(rowName: String) {
     })
 
     Button(onClick = {
-        val csvHeader = "X,Y,field"
-        val csvData = pathPoints.joinToString("\n") { "${it.first},${it.second},${rowName}" }
+        val csvHeader = "X,Y,field, date"
+        val dateTime = Date()
+        val dateFormat = DateFormat.getDateTimeInstance()
+        val formattedDateTime = dateFormat.format(dateTime)
+        val csvData = pathPoints.joinToString("\n") { "${it.first},${it.second},${rowName},${formattedDateTime.toString()}" }
         val csvContent = "$csvHeader\n$csvData"
         try {
                 val externalStorageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
