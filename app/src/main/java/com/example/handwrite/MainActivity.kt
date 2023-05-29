@@ -5,9 +5,9 @@ import android.os.Environment
 import android.view.TextureView
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.camera.core.ImageCapture
-import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.video.VideoCapture
+//import androidx.camera.core.ImageCapture
+//import androidx.camera.lifecycle.ProcessCameraProvider
+//import androidx.camera.video.VideoCapture
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -31,8 +31,8 @@ import java.text.DateFormat
 import java.util.Date
 
 class MainActivity : ComponentActivity() {
-    private lateinit var viewFinder: TextureView
-    private lateinit var cameraProvider: ProcessCameraProvider
+//    private lateinit var viewFinder: TextureView
+//    private lateinit var cameraProvider: ProcessCameraProvider
     //private lateinit var videoCapture:VideoCapture.OutputFileOptions.Builder(file).build()
 
     override fun onCreate(savedInstanceState: Bundle?) {
