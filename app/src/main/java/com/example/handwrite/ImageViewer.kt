@@ -1,5 +1,8 @@
 package com.example.handwrite
 
+import android.app.Activity
+import android.content.Context
+import androidx.camera.core.VideoCapture
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
@@ -9,6 +12,7 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.with
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,6 +40,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
+import startRecording
+import stopRecording
+import java.io.File
 
 @Preview(showBackground = true)
 @Composable
@@ -159,18 +166,30 @@ enum class UserSelection() {
 }
 
 @OptIn(ExperimentalAnimationApi::class)
-@Preview
+//@Preview
 @Composable
-fun MainPage() {
+fun MainPage(activity : Activity, context: Context, videoCapture : VideoCapture, videoFile : File) {
+    var videoCapture2: VideoCapture = videoCapture
+    var isRecording = false
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
     ) {
-        Button(onClick = { }) {
+        Button(onClick = {
+            if (!isRecording) {
+                videoCapture2 = startRecording(context, activity, videoCapture, videoFile)
+            }
+            isRecording = true
+        }) {
             Text(text = "Record")
         }
-        Button(onClick = { /*TODO*/ }) {
+        Button(onClick = {
+            if (isRecording) {
+                stopRecording(videoCapture2)
+            }
+            isRecording = false
+        }) {
             Text(text = "Stop")
         }
         var state by remember {

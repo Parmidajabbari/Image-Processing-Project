@@ -1,33 +1,27 @@
 package com.example.handwrite
 
+//import androidx.camera.core.ImageCapture
+//import androidx.camera.lifecycle.ProcessCameraProvider
+//import androidx.camera.video.VideoCapture
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.ContentValues
-import android.content.ContentValues.TAG
+import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
-import android.icu.text.AlphabeticIndex.Record
 import android.os.Bundle
 import android.os.Environment
-import android.util.Log
 import android.util.Size
-import android.view.TextureView
 import android.view.ViewGroup
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.VideoCapture
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.video.FallbackStrategy
 import androidx.camera.video.Quality
 import androidx.camera.video.QualitySelector
-import androidx.camera.video.Recorder
-import androidx.camera.core.VideoCapture
-import androidx.camera.core.VideoCapture.Builder
-//import androidx.camera.core.ImageCapture
-//import androidx.camera.lifecycle.ProcessCameraProvider
-//import androidx.camera.video.VideoCapture
-import androidx.compose.foundation.layout.Column
+import androidx.camera.view.PreviewView
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -42,28 +36,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import java.io.File
 import java.io.FileWriter
 import java.io.IOException
 import java.text.DateFormat
 import java.util.Date
-import androidx.camera.view.PreviewView
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.with
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContentProviderCompat.requireContext
-import androidx.core.content.ContextCompat
+
 class MainActivity : ComponentActivity() {
 
     private lateinit var cameraProvider: ProcessCameraProvider
@@ -76,6 +56,18 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         // Create a file to save the captured vid  o.
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            == PackageManager.PERMISSION_GRANTED) {
+            // Permission has been granted, you can write to external storage
+            // ...
+        } else {
+            // Permission has not been granted, request it
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                0
+            )
+        }
         val outputDirectory = getOutputDirectory()
         val videoFile = File(
             outputDirectory,
@@ -83,7 +75,7 @@ class MainActivity : ComponentActivity() {
         )
 
         // Create a cameraSelector to select the camera to use.
-        val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+        val cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
 
         val previewView = PreviewView(this).apply {
             layoutParams = ViewGroup.LayoutParams(
@@ -106,33 +98,26 @@ class MainActivity : ComponentActivity() {
         // Bind the camera use cases to the lifecycle of this activity.
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
 
-        ActivityCompat.requestPermissions(
-            this,
-            arrayOf(Manifest.permission.RECORD_AUDIO),
-            0
-        )
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.CAMERA
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.CAMERA),
+                0
+            )
+        }
+
 
         cameraProvider = cameraProviderFuture.get()
         cameraProvider.unbindAll()
         camera = cameraProvider.bindToLifecycle(
                     this, cameraSelector, preview, videoCapture
                 )
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.RECORD_AUDIO
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return
-        }
         setContent {
-            FirstPage()
+            FirstPage(this, this, videoCapture, videoFile)
         }
     }
 
@@ -144,31 +129,9 @@ class MainActivity : ComponentActivity() {
             mediaDir else filesDir
     }
 
-    @SuppressLint("RestrictedApi")
-    fun startRecording(context: Context, videoCapture : VideoCapture, videoFile : File) {
-        if (ActivityCompat.checkSelfPermission(
-                context,
-                Manifest.permission.RECORD_AUDIO
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-
-        }
-
-        videoCapture.startRecording(
-            VideoCapture.OutputFileOptions.Builder(videoFile).build(),
-            ContextCompat.getMainExecutor(context),
-            object : VideoCapture.OnVideoSavedCallback {
-                override fun onVideoSaved(outputFileResults: VideoCapture.OutputFileResults) {
-                    Log.d(ContentValues.TAG, "Video saved: ${videoFile.absolutePath}")
-                }
-
-                override fun onError(videoCaptureError: Int, message: String, cause: Throwable?) {
-                    Log.e(ContentValues.TAG, "Video capture failed: $message", cause)
-                }
-            }
-        )
-    }
 }
+
+
 fun getResolutions(selector: CameraSelector,
                    provider:ProcessCameraProvider
 ): Map<Quality, Size> {
@@ -181,10 +144,10 @@ fun getResolutions(selector: CameraSelector,
         } ?: emptyMap()
 }
 @OptIn(ExperimentalAnimationApi::class)
-@Preview(showBackground = true)
+//@Preview(showBackground = true)
 @Composable
-fun FirstPage() {
-    MainPage()
+fun FirstPage(activity : Activity, context: Context, videoCapture : VideoCapture, videoFile : File) {
+    MainPage(activity, context, videoCapture, videoFile)
 }
 
 @Composable
