@@ -23,6 +23,17 @@ fun startRecording(context: Context, activity : Activity, videoCapture : VideoCa
             arrayOf(Manifest.permission.CAMERA),
             0
         )
+        if (ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.RECORD_AUDIO
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                activity,
+                arrayOf(Manifest.permission.RECORD_AUDIO),
+                0
+            )
+        }
         Log.i(TAG, "request permissions")
     }
 
