@@ -166,10 +166,12 @@ enum class UserSelection() {
 }
 
 @OptIn(ExperimentalAnimationApi::class)
-@Preview(showBackground = true)
+@Preview
 @Composable
 fun MainPage() {
-    Column() {
+    Column(
+        modifier = Modifier.fillMaxSize().background(Color.White)
+    ) {
         var state by remember {
             mutableStateOf("Test1")
         }
@@ -185,10 +187,11 @@ fun MainPage() {
             when(state) {
                 "Test1" -> {
                     TopMessage(message = "Please fill the following form.")
-                    MyScreen("fname")
+                    MyScreen(formName =  "ipform","fname")
                 }
                 "Test2" -> {
-                    ImageViewer()
+                    TopMessage(message = "Draw something you like.")
+                    MyScreen(formName =  "ipform2","fname")
                 }
                 "Test3" -> {
                     ImageViewer()

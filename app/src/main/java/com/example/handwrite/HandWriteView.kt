@@ -21,13 +21,13 @@ import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun HandwritingInput(onSave: (List<Pair<Float, Float>>) -> Unit) {
+fun HandwritingInput(formName: String, onSave: (List<Pair<Float, Float>>) -> Unit) {
     var paths by remember { mutableStateOf(emptyList<Path>()) }
     var currentPath by remember { mutableStateOf(Path()) }
     val pathPoints = remember { mutableListOf<Pair<Float, Float>>() }
     val context = LocalContext.current
     val imageResource = context.resources.getIdentifier(
-        "ipform",
+        formName,
         "drawable",
         context.packageName,
     )

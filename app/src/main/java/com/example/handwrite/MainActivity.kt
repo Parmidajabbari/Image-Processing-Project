@@ -46,6 +46,7 @@ import java.util.Date
 import androidx.camera.view.PreviewView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 class MainActivity : ComponentActivity() {
@@ -132,34 +133,7 @@ fun getResolutions(selector: CameraSelector,
 @Preview(showBackground = true)
 @Composable
 fun FirstPage() {
-    Column(
-        modifier = Modifier
-//            .fillMaxSize()
-//            .verticalScroll(rememberScrollState())
-    ) {
-        Button(onClick = {
-
-        }) {
-            Text(text = "Record")
-        }
-        Button(onClick = { /*TODO*/ }) {
-            Text(text = "Stop")
-        }
-        TopMessage(message = "Please fill the following form.")
-        FieldMessage(message = "Write your first name.")
-        MyScreen("fname")
-        FieldMessage(message = "Write your last name.")
-        MyScreen("lname")
-        FieldMessage(message = "Write your age.")
-        MyScreen("age")
-        FieldMessage(message = "Write 'Apple'.")
-        MyScreen("apple")
-        FieldMessage(message = "Write 'Mother'.")
-        MyScreen("mother")
-        FieldMessage(message = "Write 'Sky'.")
-        MyScreen("sky")
-        Spacer(modifier = Modifier.padding(vertical = 10.dp))
-    }
+    MainPage()
 }
 
 @Composable
@@ -190,10 +164,10 @@ fun FieldMessage(message: String) {
 }
 
 @Composable
-fun MyScreen(rowName: String) {
+fun MyScreen(formName: String, rowName: String) {
     var pathPoints by remember { mutableStateOf(emptyList<Pair<Float, Float>>()) }
 
-    HandwritingInput(onSave = { newPoints ->
+    HandwritingInput(formName = formName, onSave = { newPoints ->
         pathPoints = newPoints
     })
 
