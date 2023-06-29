@@ -13,12 +13,19 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.with
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,6 +34,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -105,36 +114,86 @@ fun SeeResults() {
     }
 }
 
-//@Composable
-//fun DisplayImage(imagePath: String, duration: Int) {
-//    val context = LocalContext.current
-//
-//    val animatedProgress = remember { Animatable(1f) }
-//
-//    LaunchedEffect(animatedProgress) {
-//        animatedProgress.animateTo(0.5f,
-//            animationSpec = tween(
-//                durationMillis = duration,
-//                delayMillis = duration
-//            ))
-//    }
-//
-//    Box() {
-//        val imageResource = context.resources.getIdentifier(
-//            imagePath,
-//            "drawable",
-//            context.packageName,
-//        )
-//        Image(
-//            painter = painterResource(id = imageResource),
-//            modifier = Modifier
-//                .graphicsLayer {
-//                    scaleY = animatedProgress.value;
-//                    scaleX = animatedProgress.value
-//                }
-//                .fillMaxSize(),
-//            contentDescription = "background_image",
-//            contentScale = ContentScale.FillBounds
-//        )
-//    }
-//}
+@Composable
+fun SelectionLayout(onSelectionChanged: (String) -> Unit) {
+    var selectedButton by remember {
+        mutableStateOf(UserSelection.Test1)
+    }
+
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(start = 16.dp, end = 16.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .background(Color(0xffF7F7F7))
+            .padding(horizontal = 5.dp, vertical = 3.dp)
+            .height(40.dp)
+    ) {
+        SelectionButton(layoutName = "Test1", isSelected = UserSelection.Test1 == selectedButton) {
+            selectedButton = UserSelection.Test1
+            onSelectionChanged("Test1")
+        }
+        SelectionButton(layoutName = "Test2", isSelected = UserSelection.Test2 == selectedButton) {
+            selectedButton = UserSelection.Test2
+            onSelectionChanged("Test2")
+        }
+        SelectionButton(layoutName = "Test3", isSelected = UserSelection.Test3 == selectedButton) {
+            selectedButton = UserSelection.Test3
+            onSelectionChanged("Test3")
+        }
+    }
+}
+
+@Composable
+fun RowScope.SelectionButton(layoutName: String, isSelected: Boolean, onClick: () -> Unit) {
+    Button(onClick = { onClick() }, colors = ButtonDefaults.buttonColors(backgroundColor =
+    if(isSelected) Color.White else Color(0xffF7F7F7)
+    ),
+        elevation = ButtonDefaults.elevation(defaultElevation = 0.dp, pressedElevation = 0.dp, disabledElevation = 0.dp),
+        modifier = Modifier
+            .fillMaxHeight()
+            .weight(1f)
+    ) {
+        Text(text = layoutName, color =  Color(0xff3D195B),
+        )
+    }
+}
+
+enum class UserSelection() {
+    Test1,
+    Test2,
+    Test3,
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+@Preview(showBackground = true)
+@Composable
+fun MainPage() {
+    Column() {
+        var state by remember {
+            mutableStateOf("Test1")
+        }
+        SelectionLayout() {
+            state = it
+        }
+        AnimatedContent(
+            targetState = state,
+            transitionSpec = {
+                slideInHorizontally() + fadeIn() with slideOutHorizontally() + fadeOut()
+            }
+        ) {
+            when(state) {
+                "Test1" -> {
+                    TopMessage(message = "Please fill the following form.")
+                    MyScreen("fname")
+                }
+                "Test2" -> {
+                    ImageViewer()
+                }
+                "Test3" -> {
+                    ImageViewer()
+                }
+            }
+        }
+    }
+}
